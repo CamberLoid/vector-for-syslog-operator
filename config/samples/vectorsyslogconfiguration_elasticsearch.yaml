@@ -1,0 +1,24 @@
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSyslogConfiguration
+metadata:
+  name: es-output
+  namespace: default
+spec:
+  globalPipeline:
+    sinks:
+      elasticsearch:
+        type: elasticsearch
+        inputs: $$VectorSyslogOperatorSources$$
+        endpoints:
+          - http://elasticsearch:9200
+        index: "logs-%Y.%m.%d"
+        bulk:
+          index: "logs-%Y.%m.%d"
+        encoding:
+          codec: json
+        healthcheck:
+          enabled: true
+  service:
+    type: LoadBalancer
+  replicas: 1
+  image: timberio/vector:latest-debian

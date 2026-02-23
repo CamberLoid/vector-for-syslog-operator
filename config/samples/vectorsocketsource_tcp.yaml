@@ -1,0 +1,27 @@
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSocketSource
+metadata:
+  name: tcp-app-logs
+  namespace: default
+  labels:
+    app: myapp
+spec:
+  mode: tcp
+  port: 5140
+  labels:
+    source: app
+    team: backend
+---
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSocketSource
+metadata:
+  name: udp-firewall-logs
+  namespace: default
+  labels:
+    app: firewall
+spec:
+  mode: udp
+  port: 5141
+  labels:
+    source: firewall
+    team: security

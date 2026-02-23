@@ -1,0 +1,93 @@
+# 高级示例：使用 globalPipeline 和 overwriteConfig
+# 展示如何添加全局 transforms 和多个 sinks
+
+---
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSocketSource
+metadata:
+  name: app-logs
+  namespace: default
+  labels:
+    app: production
+spec:
+  mode: tcp
+  port: 5140
+  labels:
+    service: api
+    env: prod
+---
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSyslogConfiguration
+metadata:
+  name: advanced-pipeline
+  namespace: default
+spec:
+  globalPipeline:
+    # 是否启用自动 enrich（默认为 true）
+    enrichEnabled: true
+    
+    # 全局 transforms
+    transforms:
+      add_timestamp:
+        type: remap
+        inputs: $$VectorSyslogOperatorSources$$
+        source: |
+          .ingest_timestamp = now()
+          .cluster = "production"
+      
+      filter_health_checks:
+        type: filter
+        inputs: ["add_timestamp"]
+        condition: |
+          !match(.message, r'health|/ping|/ready')
+    
+    # 多个 sinks
+    sinks:
+      # 主 sink：Elasticsearch
+      elasticsearch:
+        type: elasticsearch
+        inputs: $$VectorSyslogOperatorSources$$
+        endpoints:
+          - http://elasticsearch:9200
+        index: "logs-%Y.%m.%d"
+        encoding:
+          codec: json
+      
+      # 调试 sink：Console
+      console_debug:
+        type: console
+        inputs: ["filter_health_checks"]
+        encoding:
+          codec: json
+          json:
+            pretty: true
+      
+      # 监控 sink：Prometheus Exporter
+      prometheus:
+        type: prometheus_exporter
+        inputs: $$VectorSyslogOperatorSources$$
+        address: "0.0.0.0:9598"
+
+  # 配置覆写
+  overwriteConfig:
+    sources.internal_metrics: |
+      type: internal_metrics
+      scrape_interval_secs: 15
+
+  service:
+    type: LoadBalancer
+    # 可选：指定固定的 LoadBalancer IP
+    # loadBalancerIP: 10.0.0.50
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9598"
+
+  replicas: 2
+  image: timberio/vector:latest-debian
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"

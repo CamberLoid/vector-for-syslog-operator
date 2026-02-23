@@ -1,0 +1,29 @@
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSyslogConfiguration
+metadata:
+  name: production
+  namespace: default
+spec:
+  globalPipeline:
+    sinks:
+      kafka_output:
+        type: kafka
+        inputs: $$VectorSyslogOperatorSources$$
+        bootstrap_servers: "kafka:9092"
+        topic: "logs"
+        encoding:
+          codec: json
+        compression: lz4
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+  replicas: 2
+  image: timberio/vector:latest-debian
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"

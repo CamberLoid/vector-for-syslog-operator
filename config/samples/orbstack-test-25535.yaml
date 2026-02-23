@@ -1,0 +1,78 @@
+# Orbstack 本地测试配置
+# 测试 25535 端口 TCP 和 UDP Socket 输入
+# 输出到终端（Console sink），使用 JSON Pretty 格式
+
+---
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSocketSource
+metadata:
+  name: test-tcp-25535
+  namespace: default
+  labels:
+    test: orbstack
+    protocol: tcp
+spec:
+  mode: tcp
+  port: 25535
+  labels:
+    source: test_tcp
+    env: local
+---
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSocketSource
+metadata:
+  name: test-udp-25536
+  namespace: default
+  labels:
+    test: orbstack
+    protocol: udp
+spec:
+  mode: udp
+  port: 25536
+  labels:
+    source: test_udp
+    env: local
+---
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSyslogConfiguration
+metadata:
+  name: orbstack-test
+  namespace: default
+spec:
+  globalPipeline:
+    transforms:
+      add_test_marker:
+        type: remap
+        inputs: $$VectorSyslogOperatorSources$$
+        source: |
+          .test_run = true
+          .received_at = now()
+    
+    sinks:
+      # 主 sink：JSON Pretty 输出
+      console_pretty:
+        type: console
+        inputs: $$VectorSyslogOperatorSources$$
+        encoding:
+          codec: json
+          json:
+            pretty: true
+      
+      # 额外的 sink：从 transform 输出简化格式
+      console_raw:
+        type: console
+        inputs: $$VectorSyslogOperatorSources$$
+        encoding:
+          codec: text
+  
+  service:
+    type: LoadBalancer
+    # 可选：指定 LoadBalancer IP（需要集群支持）
+    # loadBalancerIP: 192.168.1.100
+  
+  sourceSelector:
+    matchLabels:
+      test: orbstack
+  
+  replicas: 1
+  image: timberio/vector:latest-debian

@@ -1,0 +1,9 @@
+apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
+kind: VectorSyslogConfiguration
+metadata:
+  labels:
+    app.kubernetes.io/name: vector-syslog-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: vectorsyslogconfiguration-sample
+spec:
+  # TODO(user): Add fields here
