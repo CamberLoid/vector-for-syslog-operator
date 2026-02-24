@@ -1,0 +1,18 @@
+apiVersion: v2
+name: vector-syslog-operator
+description: A Helm chart for Vector Syslog Operator - Kubernetes operator for Vector log aggregation
+type: application
+version: 0.1.0
+appVersion: "v0.0.1"
+keywords:
+  - vector
+  - syslog
+  - logging
+  - operator
+home: https://github.com/camber/vector-syslog-operator
+sources:
+  - https://github.com/camber/vector-syslog-operator
+maintainers:
+  - name: Camber
+    email: camber@example.com
+icon: https://vector.dev/img/logo.svg
