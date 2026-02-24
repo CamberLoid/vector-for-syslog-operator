@@ -1,6 +1,5 @@
-# Orbstack 本地测试配置
-# 测试 25535 端口 TCP 和 UDP Socket 输入
-# 输出到终端（Console sink），使用 JSON Pretty 格式
+# Orbstack 本地测试配置 - 使用 LoadBalancerClass
+# 适用于使用自定义 LoadBalancer Controller 的场景（如 MetalLB、Cilium LB 等）
 
 ---
 apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
@@ -36,7 +35,7 @@ spec:
 apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
 kind: VectorSyslogConfiguration
 metadata:
-  name: orbstack-test
+  name: orbstack-test-lbclass
   namespace: default
 spec:
   globalPipeline:
@@ -49,7 +48,6 @@ spec:
           .received_at = now()
     
     sinks:
-      # 主 sink：JSON Pretty 输出
       console_pretty:
         type: console
         inputs: [add_test_marker]
@@ -57,18 +55,14 @@ spec:
           codec: json
           json:
             pretty: true
-      
-      # 额外的 sink：从 transform 输出简化格式
-      console_raw:
-        type: console
-        inputs: [add_test_marker]
-        encoding:
-          codec: text
   
   service:
     type: LoadBalancer
-    # 可选：指定 LoadBalancer IP（需要集群支持）
+    # 可选：指定 LoadBalancer IP
     # loadBalancerIP: 192.168.1.100
+    # 可选：指定 LoadBalancer Class（用于自定义 LB Controller）
+    # loadBalancerClass: metallb
+    # loadBalancerClass: cilium
   
   sourceSelector:
     matchLabels:

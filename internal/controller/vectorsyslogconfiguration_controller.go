@@ -302,7 +302,7 @@ func (r *VectorSyslogConfigurationReconciler) renderVectorConfig(
 
 				var vrlParts []string
 				for k, v := range s.Spec.Labels {
-					vrlParts = append(vrlParts, fmt.Sprintf(".source_%s = \"%s\"", k, v))
+					vrlParts = append(vrlParts, fmt.Sprintf("%s = \"%s\"", k, v))
 				}
 
 				transformsMap[transformName] = map[string]interface{}{
@@ -493,6 +493,11 @@ func (r *VectorSyslogConfigurationReconciler) reconcileService(ctx context.Conte
 		// Set LoadBalancerIP if specified
 		if config.Spec.Service.LoadBalancerIP != "" {
 			svc.Spec.LoadBalancerIP = config.Spec.Service.LoadBalancerIP
+		}
+
+		// Set LoadBalancerClass if specified
+		if config.Spec.Service.LoadBalancerClass != nil {
+			svc.Spec.LoadBalancerClass = config.Spec.Service.LoadBalancerClass
 		}
 
 		svc.Spec.Selector = map[string]string{

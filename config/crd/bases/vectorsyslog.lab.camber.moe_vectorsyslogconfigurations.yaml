@@ -115,7 +115,7 @@ spec:
                 - sinks
                 type: object
               image:
-                default: timberio/vector:latest
+                default: timberio/vector:latest-debian
                 description: Image is the Vector image to use
                 type: string
               overwriteConfig:
@@ -201,6 +201,11 @@ spec:
                       type: string
                     description: Annotations to add to the Service
                     type: object
+                  loadBalancerClass:
+                    description: |-
+                      LoadBalancerClass is the class of the load balancer
+                      Only valid for ServiceType LoadBalancer
+                    type: string
                   loadBalancerIP:
                     description: |-
                       LoadBalancerIP is the IP address to assign to the LoadBalancer
