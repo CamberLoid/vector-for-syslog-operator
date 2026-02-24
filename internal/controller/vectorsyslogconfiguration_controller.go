@@ -584,7 +584,7 @@ func (r *VectorSyslogConfigurationReconciler) reconcileDeployment(ctx context.Co
 			},
 		}
 
-		deployment.Spec.Template.ObjectMeta.Labels = map[string]string{
+		deployment.Spec.Template.Labels = map[string]string{
 			"app.kubernetes.io/name":      "vector",
 			"app.kubernetes.io/instance":  config.Name,
 			"app.kubernetes.io/component": "aggregator",
