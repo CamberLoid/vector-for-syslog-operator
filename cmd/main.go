@@ -43,6 +43,10 @@ import (
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
+
+	// Version info set by ldflags during build
+	Version   = "dev"
+	GitCommit = "unknown"
 )
 
 func init() {
@@ -86,6 +90,8 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	setupLog.Info("starting Vector Syslog Operator", "version", Version, "gitCommit", GitCommit)
 
 	// if the enable-http2 flag is false (the default), http/2 should be disabled
 	// due to its vulnerabilities. More specifically, disabling http/2 will

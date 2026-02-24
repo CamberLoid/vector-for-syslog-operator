@@ -1,0 +1,67 @@
+name: Release Helm Chart
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release-helm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Update Helm Chart version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          sed -i "s/^version:.*/version: ${VERSION}/" helm/vector-syslog-operator/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"${GITHUB_REF_NAME}\"/" helm/vector-syslog-operator/Chart.yaml
+
+      - name: Lint Helm Chart
+        run: helm lint helm/vector-syslog-operator
+
+      - name: Package Helm Chart
+        run: |
+          mkdir -p .cr-release-packages
+          helm package helm/vector-syslog-operator -d .cr-release-packages
+
+      - name: Create Helm Index
+        run: |
+          helm repo index .cr-release-packages --url https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}
+
+      - name: Upload Helm Chart to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: .cr-release-packages/*.tgz
+          body: |
+            ## Helm Chart
+            
+            Install the chart:
+            ```bash
+            helm upgrade --install vector-syslog-operator \
+              oci://ghcr.io/${{ github.repository_owner }}/charts/vector-syslog-operator \
+              --version ${GITHUB_REF_NAME#v}
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Chart to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+          helm push .cr-release-packages/*.tgz oci://ghcr.io/${{ github.repository_owner }}/charts

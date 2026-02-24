@@ -1,6 +1,16 @@
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 
+# VERSION defines the project version for the bundle and images.
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+
+# GHCR repository
+GHCR_REGISTRY ?= ghcr.io
+GHCR_IMAGE ?= $(GHCR_REGISTRY)/$(shell echo $(GITHUB_REPOSITORY) | tr '[:upper:]' '[:lower:]')
+
+# Build ldflags
+LDFLAGS ?= -X main.Version=$(VERSION) -X main.GitCommit=$(shell git rev-parse --short HEAD)
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -106,7 +116,7 @@ lint-config: golangci-lint ## Verify golangci-lint linter configuration
 
 .PHONY: build
 build: manifests generate fmt vet ## Build manager binary.
-	go build -o bin/manager cmd/main.go
+	go build -ldflags '$(LDFLAGS)' -o bin/manager cmd/main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
@@ -117,11 +127,32 @@ run: manifests generate fmt vet ## Run a controller from your host.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${IMG} .
+	$(CONTAINER_TOOL) build --build-arg VERSION=$(VERSION) --build-arg GIT_COMMIT=$(shell git rev-parse --short HEAD) -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	$(CONTAINER_TOOL) push ${IMG}
+
+##@ Release
+
+.PHONY: docker-build-ghcr
+docker-build-ghcr: ## Build docker image for GHCR.
+	$(CONTAINER_TOOL) build \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg GIT_COMMIT=$(shell git rev-parse --short HEAD) \
+		-t $(GHCR_IMAGE):$(VERSION) \
+		-t $(GHCR_IMAGE):latest \
+		.
+
+.PHONY: docker-push-ghcr
+docker-push-ghcr: docker-build-ghcr ## Push docker image to GHCR.
+	$(CONTAINER_TOOL) push $(GHCR_IMAGE):$(VERSION)
+	$(CONTAINER_TOOL) push $(GHCR_IMAGE):latest
+
+.PHONY: release
+release: manifests generate build-installer docker-build-ghcr docker-push-ghcr ## Build and push release artifacts.
+	@echo "Released version: $(VERSION)"
+	@echo "Image: $(GHCR_IMAGE):$(VERSION)"
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
