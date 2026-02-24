@@ -180,13 +180,19 @@ func (r *VectorSyslogConfigurationReconciler) validatePlaceholders(config *vecto
 		return fmt.Errorf("globalPipeline.sinks must contain at least one sink")
 	}
 
+	// 全局统计占位符数量（整个 globalPipeline 中只能有一个）
+	totalCount := 0
+
+	// 检查 globalPipeline.sinks
 	for name, rawExt := range config.Spec.GlobalPipeline.Sinks {
 		if rawExt.Raw == nil {
 			return fmt.Errorf("globalPipeline.sinks.%s config is empty", name)
 		}
 		count := countPlaceholders(string(rawExt.Raw))
-		if count != 1 {
-			return fmt.Errorf("globalPipeline.sinks.%s must contain exactly one %s, found %d", name, SourcesPlaceholder, count)
+		totalCount += count
+		// 单个 sink 中不能有多个占位符
+		if count > 1 {
+			return fmt.Errorf("globalPipeline.sinks.%s contains multiple %s, only one allowed per globalPipeline", name, SourcesPlaceholder)
 		}
 	}
 
@@ -194,10 +200,20 @@ func (r *VectorSyslogConfigurationReconciler) validatePlaceholders(config *vecto
 	for name, rawExt := range config.Spec.GlobalPipeline.Transforms {
 		if rawExt.Raw != nil {
 			count := countPlaceholders(string(rawExt.Raw))
-			if count != 1 {
-				return fmt.Errorf("globalPipeline.transforms.%s must contain exactly one %s, found %d", name, SourcesPlaceholder, count)
+			totalCount += count
+			// 单个 transform 中不能有多个占位符
+			if count > 1 {
+				return fmt.Errorf("globalPipeline.transforms.%s contains multiple %s, only one allowed per globalPipeline", name, SourcesPlaceholder)
 			}
 		}
+	}
+
+	// 整个 globalPipeline 中必须有且仅有一个占位符
+	if totalCount == 0 {
+		return fmt.Errorf("globalPipeline must contain exactly one %s in sinks or transforms, found none", SourcesPlaceholder)
+	}
+	if totalCount > 1 {
+		return fmt.Errorf("globalPipeline must contain exactly one %s in total, found %d", SourcesPlaceholder, totalCount)
 	}
 
 	return nil
@@ -302,7 +318,7 @@ func (r *VectorSyslogConfigurationReconciler) renderVectorConfig(
 
 				var vrlParts []string
 				for k, v := range s.Spec.Labels {
-					vrlParts = append(vrlParts, fmt.Sprintf("%s = \"%s\"", k, v))
+					vrlParts = append(vrlParts, fmt.Sprintf(".%s = \"%s\"", k, v))
 				}
 
 				transformsMap[transformName] = map[string]interface{}{
