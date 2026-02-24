@@ -22,6 +22,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
@@ -32,40 +33,87 @@ import (
 
 var _ = Describe("VectorSyslogConfiguration Controller", func() {
 	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
+		const (
+			configName = "test-config"
+			sourceName = "test-source"
+		)
 
 		ctx := context.Background()
 
-		typeNamespacedName := types.NamespacedName{
-			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
+		configNamespacedName := types.NamespacedName{
+			Name:      configName,
+			Namespace: "default",
 		}
-		vectorsyslogconfiguration := &vectorsyslogv1alpha1.VectorSyslogConfiguration{}
+		sourceNamespacedName := types.NamespacedName{
+			Name:      sourceName,
+			Namespace: "default",
+		}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind VectorSyslogConfiguration")
-			err := k8sClient.Get(ctx, typeNamespacedName, vectorsyslogconfiguration)
+			By("creating the VectorSocketSource first")
+			source := &vectorsyslogv1alpha1.VectorSocketSource{}
+			err := k8sClient.Get(ctx, sourceNamespacedName, source)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &vectorsyslogv1alpha1.VectorSyslogConfiguration{
+				source = &vectorsyslogv1alpha1.VectorSocketSource{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
+						Name:      sourceName,
+						Namespace: "default",
+						Labels: map[string]string{
+							"app": "test",
+						},
+					},
+					Spec: vectorsyslogv1alpha1.VectorSocketSourceSpec{
+						Mode: "tcp",
+						Port: 5140,
+					},
+				}
+				Expect(k8sClient.Create(ctx, source)).To(Succeed())
+			}
+
+			By("creating the VectorSyslogConfiguration")
+			config := &vectorsyslogv1alpha1.VectorSyslogConfiguration{}
+			err = k8sClient.Get(ctx, configNamespacedName, config)
+			if err != nil && errors.IsNotFound(err) {
+				config = &vectorsyslogv1alpha1.VectorSyslogConfiguration{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      configName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: vectorsyslogv1alpha1.VectorSyslogConfigurationSpec{
+						SourceSelector: &metav1.LabelSelector{
+							MatchLabels: map[string]string{
+								"app": "test",
+							},
+						},
+						GlobalPipeline: vectorsyslogv1alpha1.GlobalPipelineSpec{
+							Sinks: map[string]runtime.RawExtension{
+								"console": {
+									Raw: []byte(`{"type":"console","inputs":"$$VectorSyslogOperatorSources$$","encoding":{"codec":"json"}}`),
+								},
+							},
+						},
+					},
 				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
+				Expect(k8sClient.Create(ctx, config)).To(Succeed())
 			}
 		})
 
 		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &vectorsyslogv1alpha1.VectorSyslogConfiguration{}
-			err := k8sClient.Get(ctx, typeNamespacedName, resource)
-			Expect(err).NotTo(HaveOccurred())
+			By("Cleanup the VectorSyslogConfiguration")
+			config := &vectorsyslogv1alpha1.VectorSyslogConfiguration{}
+			err := k8sClient.Get(ctx, configNamespacedName, config)
+			if err == nil {
+				Expect(k8sClient.Delete(ctx, config)).To(Succeed())
+			}
 
-			By("Cleanup the specific resource instance VectorSyslogConfiguration")
-			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
+			By("Cleanup the VectorSocketSource")
+			source := &vectorsyslogv1alpha1.VectorSocketSource{}
+			err = k8sClient.Get(ctx, sourceNamespacedName, source)
+			if err == nil {
+				Expect(k8sClient.Delete(ctx, source)).To(Succeed())
+			}
 		})
+
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
 			controllerReconciler := &VectorSyslogConfigurationReconciler{
@@ -74,11 +122,9 @@ var _ = Describe("VectorSyslogConfiguration Controller", func() {
 			}
 
 			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: typeNamespacedName,
+				NamespacedName: configNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
 		})
 	})
 })
