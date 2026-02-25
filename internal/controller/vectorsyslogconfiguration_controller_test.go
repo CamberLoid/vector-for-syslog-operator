@@ -28,7 +28,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	vectorsyslogv1alpha1 "lab.camber.moe/VectorSyslogOperator/api/v1alpha1"
+	vectorsyslogv1alpha1 "lab.camber.moe/VectorForSyslogOperator/api/v1alpha1"
 )
 
 var _ = Describe("VectorSyslogConfiguration Controller", func() {
@@ -88,7 +88,7 @@ var _ = Describe("VectorSyslogConfiguration Controller", func() {
 						GlobalPipeline: vectorsyslogv1alpha1.GlobalPipelineSpec{
 							Sinks: map[string]runtime.RawExtension{
 								"console": {
-									Raw: []byte(`{"type":"console","inputs":"$$VectorSyslogOperatorSources$$","encoding":{"codec":"json"}}`),
+									Raw: []byte(`{"type":"console","inputs":"$$VectorForSyslogOperatorSources$$","encoding":{"codec":"json"}}`),
 								},
 							},
 						},

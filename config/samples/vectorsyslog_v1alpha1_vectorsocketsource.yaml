@@ -2,7 +2,7 @@ apiVersion: vectorsyslog.lab.camber.moe/v1alpha1
 kind: VectorSocketSource
 metadata:
   labels:
-    app.kubernetes.io/name: vector-syslog-operator
+    app.kubernetes.io/name: vector-for-syslog-operator
     app.kubernetes.io/managed-by: kustomize
   name: vectorsocketsource-sample
 spec:

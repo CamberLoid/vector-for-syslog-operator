@@ -1,4 +1,4 @@
-# This rule is not used by the project vector-syslog-operator itself.
+# This rule is not used by the project vector-for-syslog-operator itself.
 # It is provided to allow the cluster admin to help manage permissions for users.
 #
 # Grants read-only access to vectorsyslog.lab.camber.moe resources.
@@ -9,7 +9,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: vector-syslog-operator
+    app.kubernetes.io/name: vector-for-syslog-operator
     app.kubernetes.io/managed-by: kustomize
   name: vectorsocketsource-viewer-role
 rules:

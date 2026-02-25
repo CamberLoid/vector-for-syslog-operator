@@ -70,7 +70,7 @@ spec:
                     transforms:
                       <name>:
                         type: remap
-                        inputs: $$VectorSyslogOperatorSources$$
+                        inputs: $$VectorForSyslogOperatorSources$$
                     sinks:
                       <name>:
                         type: console
@@ -103,11 +103,11 @@ spec:
                     description: |-
                       Transforms are global transforms defined by user
                       Key is transform name, value is transform configuration
-                      Use $$VectorSyslogOperatorSources$$ as placeholder for inputs
+                      Use $$VectorForSyslogOperatorSources$$ as placeholder for inputs
                       Example:
                         my_transform:
                           type: remap
-                          inputs: $$VectorSyslogOperatorSources$$
+                          inputs: $$VectorForSyslogOperatorSources$$
                           source: '.added_field = "value"'
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
