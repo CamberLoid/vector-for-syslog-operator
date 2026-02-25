@@ -35,8 +35,8 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	vectorsyslogv1alpha1 "lab.camber.moe/VectorSyslogOperator/api/v1alpha1"
-	"lab.camber.moe/VectorSyslogOperator/internal/controller"
+	vectorsyslogv1alpha1 "lab.camber.moe/VectorForSyslogOperator/api/v1alpha1"
+	"lab.camber.moe/VectorForSyslogOperator/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
 

@@ -54,10 +54,10 @@
 │  3. Global Pipeline                                                      │
 │     - Transforms: 用户定义在 globalPipeline.transforms 中                │
 │       * key 是 transform 名称                                            │
-│       * 可以使用 $$VectorSyslogOperatorSources$$ 作为 inputs             │
+│       * 可以使用 $$VectorForSyslogOperatorSources$$ 作为 inputs             │
 │     - Sinks: 用户定义在 globalPipeline.sinks 中（至少一个）              │
 │       * key 是 sink 名称                                                 │
-│       * 可以使用 $$VectorSyslogOperatorSources$$ 或 transform 名称       │
+│       * 可以使用 $$VectorForSyslogOperatorSources$$ 或 transform 名称       │
 │                                                                          │
 │  生成的配置格式为 YAML，与 Vector 原生 YAML 配置一致                     │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -67,7 +67,7 @@
 
 **格式**：YAML Object，定义在 `globalPipeline.sinks` 中（必需）
 
-**必需占位符**：`$$VectorSyslogOperatorSources$$`（有且仅有一个）
+**必需占位符**：`$$VectorForSyslogOperatorSources$$`（有且仅有一个）
 
 **示例**：
 
@@ -77,7 +77,7 @@ spec:
     sinks:
       elasticsearch:
         type: elasticsearch
-        inputs: $$VectorSyslogOperatorSources$$  # 占位符，会被替换
+        inputs: $$VectorForSyslogOperatorSources$$  # 占位符，会被替换
         endpoints:
           - http://es:9200
         index: "logs-%Y.%m.%d"
@@ -128,7 +128,7 @@ spec:
     transforms:
       add_timestamp:
         type: remap
-        inputs: $$VectorSyslogOperatorSources$$  # 使用占位符
+        inputs: $$VectorForSyslogOperatorSources$$  # 使用占位符
         source: |
           .ingest_timestamp = now()
           .cluster = "production"
@@ -143,7 +143,7 @@ spec:
     sinks:
       elasticsearch:
         type: elasticsearch
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         endpoints:
           - http://es:9200
         index: "logs"
@@ -157,7 +157,7 @@ spec:
             pretty: true
 ```
 
-**注意**：所有在 `globalPipeline.sinks` 中的配置都必须包含且仅包含一个 `$$VectorSyslogOperatorSources$$` 占位符（用于 inputs 字段）。
+**注意**：所有在 `globalPipeline.sinks` 中的配置都必须包含且仅包含一个 `$$VectorForSyslogOperatorSources$$` 占位符（用于 inputs 字段）。
 
 ### Service 配置
 
@@ -249,7 +249,7 @@ sinks:
 5. 验证占位符（所有使用占位符的地方必须有且仅有一个）
 6. 渲染 Vector 配置（YAML 格式）：
    - 构建完整的配置对象
-   - 替换所有 `$$VectorSyslogOperatorSources$$` 为 base inputs
+   - 替换所有 `$$VectorForSyslogOperatorSources$$` 为 base inputs
    - 序列化为 YAML
 7. 创建/更新 ConfigMap
 8. 创建/更新 Service、Deployment
@@ -259,7 +259,7 @@ sinks:
 
 **当前实现**：
 - ✅ 端口冲突检测
-- ✅ 占位符检查（globalPipeline.sinks 每个必须有且仅有一个 `$$VectorSyslogOperatorSources$$`）
+- ✅ 占位符检查（globalPipeline.sinks 每个必须有且仅有一个 `$$VectorForSyslogOperatorSources$$`）
 - ✅ globalPipeline.transforms 占位符检查
 
 **TODO**：
@@ -317,7 +317,7 @@ spec:
     transforms:
       add_metadata:
         type: remap
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         source: |
           .cluster = "production"
           .ingest_time = now()
@@ -332,7 +332,7 @@ spec:
     sinks:
       elasticsearch:
         type: elasticsearch
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         endpoints:
           - http://es:9200
         index: "logs-%Y.%m.%d"
@@ -405,7 +405,7 @@ spec:
    │   ├── sources（overwrite + 自动生成）
    │   ├── transforms（enrich + overwrite + globalPipeline）
    │   └── sinks（overwrite + globalPipeline）
-   ├── 替换所有 $$VectorSyslogOperatorSources$$
+   ├── 替换所有 $$VectorForSyslogOperatorSources$$
    └── 序列化为 YAML
 
 7. 创建/更新子资源

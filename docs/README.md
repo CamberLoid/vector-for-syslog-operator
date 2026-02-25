@@ -18,6 +18,6 @@
 
 ## 其他
 
-* domain: vector-syslog-operator.camber.moe
+* domain: vector-for-syslog-operator.camber.moe
 * 
   

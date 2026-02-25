@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	vectorsyslogv1alpha1 "lab.camber.moe/VectorSyslogOperator/api/v1alpha1"
+	vectorsyslogv1alpha1 "lab.camber.moe/VectorForSyslogOperator/api/v1alpha1"
 )
 
 // VectorSocketSourceReconciler reconciles a VectorSocketSource object

@@ -30,20 +30,20 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"lab.camber.moe/VectorSyslogOperator/test/utils"
+	"lab.camber.moe/VectorForSyslogOperator/test/utils"
 )
 
 // namespace where the project is deployed in
-const namespace = "vector-syslog-operator-system"
+const namespace = "vector-for-syslog-operator-system"
 
 // serviceAccountName created for the project
-const serviceAccountName = "vector-syslog-operator-controller-manager"
+const serviceAccountName = "vector-for-syslog-operator-controller-manager"
 
 // metricsServiceName is the name of the metrics service of the project
-const metricsServiceName = "vector-syslog-operator-controller-manager-metrics-service"
+const metricsServiceName = "vector-for-syslog-operator-controller-manager-metrics-service"
 
 // metricsRoleBindingName is the name of the RBAC that will be created to allow get the metrics data
-const metricsRoleBindingName = "vector-syslog-operator-metrics-binding"
+const metricsRoleBindingName = "vector-for-syslog-operator-metrics-binding"
 
 var _ = Describe("Manager", Ordered, func() {
 	var controllerPodName string
@@ -176,7 +176,7 @@ var _ = Describe("Manager", Ordered, func() {
 		It("should ensure the metrics endpoint is serving metrics", func() {
 			By("creating a ClusterRoleBinding for the service account to allow access to metrics")
 			cmd := exec.Command("kubectl", "create", "clusterrolebinding", metricsRoleBindingName,
-				"--clusterrole=vector-syslog-operator-metrics-reader",
+				"--clusterrole=vector-for-syslog-operator-metrics-reader",
 				fmt.Sprintf("--serviceaccount=%s:%s", namespace, serviceAccountName),
 			)
 			_, err := utils.Run(cmd)

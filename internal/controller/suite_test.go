@@ -33,7 +33,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	vectorsyslogv1alpha1 "lab.camber.moe/VectorSyslogOperator/api/v1alpha1"
+	vectorsyslogv1alpha1 "lab.camber.moe/VectorForSyslogOperator/api/v1alpha1"
 	// +kubebuilder:scaffold:imports
 )
 

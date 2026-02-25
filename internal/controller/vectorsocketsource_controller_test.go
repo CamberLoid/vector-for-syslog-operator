@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	vectorsyslogv1alpha1 "lab.camber.moe/VectorSyslogOperator/api/v1alpha1"
+	vectorsyslogv1alpha1 "lab.camber.moe/VectorForSyslogOperator/api/v1alpha1"
 )
 
 var _ = Describe("VectorSocketSource Controller", func() {

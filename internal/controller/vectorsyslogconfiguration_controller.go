@@ -39,7 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	vectorsyslogv1alpha1 "lab.camber.moe/VectorSyslogOperator/api/v1alpha1"
+	vectorsyslogv1alpha1 "lab.camber.moe/VectorForSyslogOperator/api/v1alpha1"
 )
 
 const (
@@ -49,7 +49,7 @@ const (
 	TypeProgressing = "Progressing"
 	TypeDegraded    = "Degraded"
 
-	SourcesPlaceholder = "$$VectorSyslogOperatorSources$$"
+	SourcesPlaceholder = "$$VectorForSyslogOperatorSources$$"
 )
 
 type VectorSyslogConfigurationReconciler struct {

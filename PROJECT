@@ -6,7 +6,7 @@ cliVersion: 4.11.1
 domain: lab.camber.moe
 layout:
 - go.kubebuilder.io/v4
-projectName: vector-syslog-operator
+projectName: vector-for-syslog-operator
 repo: lab.camber.moe
 resources:
 - api:

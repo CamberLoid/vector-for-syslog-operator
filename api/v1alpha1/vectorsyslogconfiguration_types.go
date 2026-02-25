@@ -60,11 +60,11 @@ type ServiceSpec struct {
 type GlobalPipelineSpec struct {
 	// Transforms are global transforms defined by user
 	// Key is transform name, value is transform configuration
-	// Use $$VectorSyslogOperatorSources$$ as placeholder for inputs
+	// Use $$VectorForSyslogOperatorSources$$ as placeholder for inputs
 	// Example:
 	//   my_transform:
 	//     type: remap
-	//     inputs: $$VectorSyslogOperatorSources$$
+	//     inputs: $$VectorForSyslogOperatorSources$$
 	//     source: '.added_field = "value"'
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +optional
@@ -105,7 +105,7 @@ type VectorSyslogConfigurationSpec struct {
 	//   transforms:
 	//     <name>:
 	//       type: remap
-	//       inputs: $$VectorSyslogOperatorSources$$
+	//       inputs: $$VectorForSyslogOperatorSources$$
 	//   sinks:
 	//     <name>:
 	//       type: console

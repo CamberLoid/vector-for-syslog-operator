@@ -1,4 +1,4 @@
-module lab.camber.moe/VectorSyslogOperator
+module lab.camber.moe/VectorForSyslogOperator
 
 go 1.25.3
 
