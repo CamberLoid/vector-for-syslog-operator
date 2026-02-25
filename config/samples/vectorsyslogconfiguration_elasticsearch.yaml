@@ -8,7 +8,7 @@ spec:
     sinks:
       elasticsearch:
         type: elasticsearch
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         endpoints:
           - http://elasticsearch:9200
         index: "logs-%Y.%m.%d"

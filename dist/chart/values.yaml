@@ -12,7 +12,7 @@ manager:
   replicas: 1
   
   image:
-    repository: ghcr.io/CamberLoid/vector-for-syslog-operator
+    repository: ghcr.io/camberloid/vector-for-syslog-operator
     tag: latest
     pullPolicy: IfNotPresent
 

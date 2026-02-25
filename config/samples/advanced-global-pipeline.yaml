@@ -30,7 +30,7 @@ spec:
     transforms:
       add_timestamp:
         type: remap
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         source: |
           .ingest_timestamp = now()
           .cluster = "production"
@@ -46,7 +46,7 @@ spec:
       # 主 sink：Elasticsearch
       elasticsearch:
         type: elasticsearch
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         endpoints:
           - http://elasticsearch:9200
         index: "logs-%Y.%m.%d"
@@ -65,7 +65,7 @@ spec:
       # 监控 sink：Prometheus Exporter
       prometheus:
         type: prometheus_exporter
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         address: "0.0.0.0:9598"
 
   # 配置覆写

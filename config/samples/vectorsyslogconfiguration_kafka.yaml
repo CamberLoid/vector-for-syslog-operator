@@ -8,7 +8,7 @@ spec:
     sinks:
       kafka_output:
         type: kafka
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         bootstrap_servers: "kafka:9092"
         topic: "logs"
         encoding:

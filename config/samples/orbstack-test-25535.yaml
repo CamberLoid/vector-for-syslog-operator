@@ -43,7 +43,7 @@ spec:
     transforms:
       add_test_marker:
         type: remap
-        inputs: $$VectorSyslogOperatorSources$$
+        inputs: $$VectorForSyslogOperatorSources$$
         source: |
           .test_run = true
           .received_at = now()
