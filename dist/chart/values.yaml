@@ -25,9 +25,11 @@ manager:
   ##
   env: []
 
-  ## Image pull secrets
+  ## Image pull secrets for private registries (e.g., ghcr.io)
+  ## Create secret: kubectl create secret docker-registry ghcr-cred --docker-server=ghcr.io --docker-username=<user> --docker-password=<token> -n <namespace>
   ##
   imagePullSecrets: []
+  # - name: ghcr-cred
 
   ## Pod-level security settings
   ##

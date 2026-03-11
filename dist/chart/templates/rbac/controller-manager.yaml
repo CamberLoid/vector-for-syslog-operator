@@ -8,3 +8,7 @@ metadata:
         app.kubernetes.io/instance: {{ .Release.Name }}
     name: {{ include "vector-for-syslog-operator.resourceName" (dict "suffix" "controller-manager" "context" $) }}
     namespace: {{ .Release.Namespace }}
+{{- with .Values.manager.imagePullSecrets }}
+imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
